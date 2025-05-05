@@ -24,7 +24,8 @@ namespace TestDbfLib
 		{
 			//TestReadFile();
 			//TestReadHttpConn();
-			TestWriteNewDbf();
+			//TestWriteNewDbf();
+			TestConvertDbf();
 			Console.ReadKey();
 		}
 
@@ -60,7 +61,7 @@ namespace TestDbfLib
 			orec[8] = "f";
 			odbf.Write(orec, true);
 
-			orec[0] = "Stéfanié Singer";
+			orec[0] = "Stéfani?Singer";
 			orec[1] = "-1.5";
 			orec[2] = "-1.35";
 			orec[3] = "1.235";
@@ -71,7 +72,7 @@ namespace TestDbfLib
 			orec[8] = "f";
 			odbf.Write(orec, true);
 
-			orec[0] = "Stéfanié Singer longer than fits in the DBF record!";
+			orec[0] = "Stéfani?Singer longer than fits in the DBF record!";
 			orec[1] = "0.1";
 			orec[2] = ".12";
 			orec[3] = ".1";
@@ -138,15 +139,19 @@ namespace TestDbfLib
 		private static void TestReadFile()
 		{
 			//create a simple DBF file and output to args[0]
-			var odbf = new DbfFile(Encoding.GetEncoding(1252));
+			//var odbf = new DbfFile(Encoding.GetEncoding(1252));
+            var odbf = new DbfFile(Encoding.GetEncoding(936));
 
-			odbf.Open(Path.Combine(TestPath,"TestNew2.dbf"), FileMode.Open); //State_vars1.dbf  county_vars1.dbf
+            odbf.Open(Path.Combine("I:\\ccl\\data\\111", "ÔÆÄÏÊ¡ÕÑÍ¨ÊÐ²íºÓË®¿â¹¤³Ì½¨ÉèÏîÄ¿.dbf"), FileMode.Open); //State_vars1.dbf  county_vars1.dbf
 
 			//if (File.Exists("P:\\Development\\Library\\CS\\DbfLib\\DBFSamples\\filesource.txt"))
 			//  File.Delete("P:\\Development\\Library\\CS\\DbfLib\\DBFSamples\\filesource.txt");
 
-			var ofs = new FileStream(Path.Combine(TestPath,"filesource.txt"), FileMode.Create);
-			var osw = new StreamWriter(ofs, Encoding.Default);
+			//var ofs = new FileStream(Path.Combine(TestPath,"filesource.txt"), FileMode.Create);
+			//var osw = new StreamWriter(ofs, Encoding.Default);
+
+
+			
 
 			//read and print records to screen...
 			var orec = new DbfRecord(odbf.Header);
@@ -156,7 +161,7 @@ namespace TestDbfLib
 			{
 				if (!odbf.Read(i, orec))
 					break;
-				osw.WriteLine("index: " + orec.RecordIndex + ": " + orec);
+				System.Diagnostics.Debug.WriteLine("index: " + orec.RecordIndex + ": " + orec);
 			}
 
 
@@ -167,9 +172,86 @@ namespace TestDbfLib
 	  }
 	  */
 
-			osw.Flush();
-			osw.Close();
+			//osw.Flush();
+			//osw.Close();
 		}
+
+		/// <summary>
+		/// ½«936µÄdbf×ªÎªutf-8¸ñÊ½£¬Ö§³Öandroid¶ÁÈ¡
+		/// </summary>
+		private static void TestConvertDbf()
+		{
+            var odbf = new DbfFile(Encoding.GetEncoding(936));
+
+            odbf.Open(Path.Combine("I:\\ccl\\data\\111", "ÔÆÄÏÊ¡ÕÑÍ¨ÊÐ²íºÓË®¿â¹¤³Ì½¨ÉèÏîÄ¿0.dbf"), FileMode.Open);
+
+            var odbf2 = new DbfFile(Encoding.UTF8);
+            odbf2.Open(Path.Combine("I:\\ccl\\data\\111", "ÔÆÄÏÊ¡ÕÑÍ¨ÊÐ²íºÓË®¿â¹¤³Ì½¨ÉèÏîÄ¿.dbf"), FileMode.Create);
+
+            var orec = new DbfRecord(odbf.Header);
+
+			for(int i = 0; i < odbf.Header.ColumnCount; i++)
+			{
+				DbfColumn col = odbf.Header[i];
+				odbf2.Header.AddColumn(col);
+			}
+            
+
+            //add some records...
+            //var orec = new DbfRecord(odbf.Header) { AllowDecimalTruncate = true };
+            //orec[0] = "Ahmed Test";
+            //orec[1] = "123.5";
+            //orec[2] = "12.35";
+            //orec[3] = "1.235";
+            //orec[4] = "1235.123456";
+            //orec[5] = "1235";
+            //orec[6] = "123567890";
+            //orec[7] = "11/07/2007";
+            //orec[8] = "f";
+            //odbf.Write(orec, true);
+
+            for (int i = 0; i < odbf.Header.RecordCount; i++)
+            {
+                if (odbf.Read(i, orec))
+				{
+					var newRec = new DbfRecord(odbf2.Header);
+					for(int j = 0; j < odbf2.Header.ColumnCount; j++)
+					{
+                        newRec[j] = orec[j];
+      //                  if (odbf.Header[j].ColumnType == DbfColumn.DbfColumnType.Character)
+						//{
+						//	//	string strVal = orec[j];
+						//	//	//ÏÈ×ª»»Îªutf8µÄ×Ö·û´®
+						//	//	byte[] bytes = Encoding.UTF8.GetBytes(strVal);
+						//	//	string utf8str = Encoding.UTF8.GetString(bytes);
+
+						//	//	//ÔÙ×ªÎªgb2312bytes
+						//	//	byte[] gbbytes= Encoding.GetEncoding(936).GetBytes(utf8str);
+						//	//	string gbStr = Encoding.GetEncoding(936).GetString(gbbytes);
+
+						//	//	//
+						//	//	orec[j] = gbStr;
+
+
+						//	newRec[j] = orec[j];
+							
+						//}
+					}
+					
+					odbf2.Write(newRec);
+					
+				}
+				else
+				{
+                    break;
+                }
+					
+                System.Diagnostics.Debug.WriteLine("index: " + orec.RecordIndex + ": " + orec);
+            }
+			
+			odbf2.Close();
+			odbf.Close();
+        }
 
 
 		private static void TestReadHttpConn()

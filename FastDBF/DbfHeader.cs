@@ -511,7 +511,37 @@ namespace SocialExplorer.IO.FastDBF
             foreach (DbfColumn field in _fields)
             {
                 char[] cname = field.Name.PadRight(11, (char)0).ToCharArray();
-                writer.Write(cname);
+
+
+
+                string fldname = field.Name;
+                var bytes = System.Text.Encoding.UTF8.GetBytes(fldname);
+                int nlen = bytes.Length;
+                if(nlen > 10)
+                {
+                    while (bytes.Length > 10)
+                    {
+                        fldname = fldname.Substring(0, fldname.Length - 1);
+                        bytes = System.Text.Encoding.UTF8.GetBytes(fldname);
+                    }
+
+                    byte[] buff = new byte[]{ 0,0,0,0,0,0,0,0,0,0,0};
+                    
+                    for (int i = 0; i < bytes.Length; i++)
+                    {
+                        buff[i] = bytes[i];
+                    }
+                    writer.Write(buff);
+                }
+                else
+                {
+                    writer.Write(cname);
+                }
+
+
+
+
+                   
 
                 // write the field type
                 writer.Write((char)field.ColumnTypeChar);
@@ -600,11 +630,19 @@ namespace SocialExplorer.IO.FastDBF
             _fields = new List<DbfColumn>(nNumFields);
             for (int i = 0; i < nNumFields; i++)
             {
+                //read the field name
+                byte[] bytes = reader.ReadBytes(11);
 
-                // read the field name				
-                char[] buffer = new char[11];
-                buffer = reader.ReadChars(11);
-                string sFieldName = new string(buffer);
+                string sFieldName = Encoding.GetEncoding(936).GetString(bytes);
+
+                //reader.BaseStream.Position -= 11;
+                
+                //char[] buffer = new char[11];
+                //buffer = reader.ReadChars(11);  //4个汉字的时候，这里占用了16个字节
+
+
+
+                //string sFieldName = new string(buffer);
                 int nullPoint = sFieldName.IndexOf((char)0);
                 if (nullPoint != -1)
                     sFieldName = sFieldName.Substring(0, nullPoint);
