@@ -72,16 +72,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\DBF2CSV\DBF2CSV\SocialExplorer.DBF2CSV.csproj">
-      <Project>{D6AABC96-19DC-46EB-81CE-2D51BE43E832}</Project>
-      <Name>SocialExplorer.DBF2CSV</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\FastDBF\SocialExplorer.FastDBF.csproj">
-      <Project>{9CF5ED11-6D2B-4FEF-8A0A-B2E12DE59867}</Project>
-      <Name>SocialExplorer.FastDBF</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
       <Visible>False</Visible>
       <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
@@ -100,6 +90,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\FastDBF\SocialExplorer.FastDBF.csproj">
+      <Project>{9cf5ed11-6d2b-4fef-8a0a-b2e12de59867}</Project>
+      <Name>SocialExplorer.FastDBF</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
